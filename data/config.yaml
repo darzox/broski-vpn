@@ -1,0 +1,7 @@
+token: 6951561778:AAFCaUePuicyYqoiEgK_WNX2YPAVRH29IIc
+postgresUserLogin: postgres
+postgresUserPass: password
+postgresHost: localhost
+postgresPort: 5432
+postgresDBName: postgres
+postgresSslMode: disable
