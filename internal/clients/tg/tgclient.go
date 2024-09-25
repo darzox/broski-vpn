@@ -36,6 +36,25 @@ func (c *Client) SendMessage(text string, userID int64) error {
 	return nil
 }
 
+func (c *Client) SendAppGetLinks(userID int64) error {
+	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonURL("Apple 🍏", "https://itunes.apple.com/app/outline-app/id1356177741"),
+			tgbotapi.NewInlineKeyboardButtonURL("Android 🤖", "https://play.google.com/store/apps/details?id=org.outline.android.client"),
+		),
+	)
+
+	msg := tgbotapi.NewMessage(userID, "Скачать приложение можно используя ссылки:")
+
+	msg.ReplyMarkup = inlineKeyboard
+	_, err := c.client.Send(msg)
+	if err != nil {
+		return errors.Wrap(err, "client.SendAppGetLinks")
+	}
+
+	return nil
+}
+
 func (c *Client) ListenUpdates(msgModel *messages.Model) {
 	u := tgbotapi.NewUpdate(0)
 

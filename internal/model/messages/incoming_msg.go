@@ -4,6 +4,7 @@ import "errors"
 
 type MessageSender interface {
 	SendMessage(text string, userID int64) error
+	SendAppGetLinks(userID int64) error
 }
 
 type InvoiceSender interface {
@@ -28,15 +29,22 @@ type Message struct {
 }
 
 func (s *Model) IncomingMessage(msg Message) error {
-
 	switch {
 	case msg.Text == "" || msg.UserID == 0:
 		return errors.New("cannot send empty message")
 	case msg.Text == "/start":
 		return s.tgClient.SendMessage("hello", msg.UserID)
-	case msg.Text == "/buy":
+	case msg.Text == "/terms":
+		return s.tgClient.SendMessage("terms", msg.UserID)
+	case msg.Text == "/get_app":
+		return s.tgClient.SendAppGetLinks(msg.UserID)
+	case msg.Text == "/get_key":
+		return s.tgClient.SendMessage("payment", msg.UserID)
+	case msg.Text == "/buy_for_month":
 		return s.httpClient.SendInvoice(msg.UserID, 150)
-	case msg.Text == "/paysupport":
+	// case msg.Text == "/buy_for_year":
+	// 	return s.httpClient.SendInvoice(msg.UserID, 1000)
+	case msg.Text == "/support":
 		return s.tgClient.SendMessage("Мы напишем вам в лс", msg.UserID)
 	default:
 		return s.tgClient.SendMessage("the command is unknown", msg.UserID)

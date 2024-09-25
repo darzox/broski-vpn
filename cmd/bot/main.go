@@ -10,7 +10,7 @@ import (
 	model "github.com/darzox/telegram-bot.git/internal/model/messages"
 	"github.com/jmoiron/sqlx"
 
-	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
@@ -47,6 +47,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Println(db)
 
 	tgClient, err := tg.New(config)
 	if err != nil {
