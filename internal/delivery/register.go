@@ -1,6 +1,6 @@
-package messages
+package delivery
 
-import "errors"
+import "log/slog"
 
 type MessageSender interface {
 	SendMessage(text string, userID int64) error
@@ -11,15 +11,22 @@ type InvoiceSender interface {
 	SendInvoice(userId int64, amount int) error
 }
 
-type Model struct {
-	tgClient   MessageSender
-	httpClient InvoiceSender
+type Usecase interface {
+	Start(userId int64) (string, error)
 }
 
-func New(tgClient MessageSender, httpClient InvoiceSender) *Model {
-	return &Model{
-		tgClient:   tgClient,
-		httpClient: httpClient,
+type Delivery struct {
+	logger     *slog.Logger
+	tgClient   MessageSender
+	httpClient InvoiceSender
+	usecase    Usecase
+}
+
+func New(logger *slog.Logger, tgClient MessageSender, usecase Usecase) *Delivery {
+	return &Delivery{
+		logger:   logger,
+		tgClient: tgClient,
+		usecase:  usecase,
 	}
 }
 
@@ -28,12 +35,10 @@ type Message struct {
 	UserID int64
 }
 
-func (s *Model) IncomingMessage(msg Message) error {
+func (s *Delivery) IncomingMessage(msg Message) error {
 	switch {
-	case msg.Text == "" || msg.UserID == 0:
-		return errors.New("cannot send empty message")
 	case msg.Text == "/start":
-		return s.tgClient.SendMessage("hello", msg.UserID)
+		s.start(msg)
 	case msg.Text == "/terms":
 		return s.tgClient.SendMessage("terms", msg.UserID)
 	case msg.Text == "/get_app":
@@ -49,4 +54,6 @@ func (s *Model) IncomingMessage(msg Message) error {
 	default:
 		return s.tgClient.SendMessage("the command is unknown", msg.UserID)
 	}
+
+	return nil
 }

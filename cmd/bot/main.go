@@ -1,40 +1,50 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
+	"log/slog"
+	"os"
 
-	"github.com/darzox/telegram-bot.git/internal/clients/http_invoice"
-	"github.com/darzox/telegram-bot.git/internal/clients/tg"
-	"github.com/darzox/telegram-bot.git/internal/config"
-	model "github.com/darzox/telegram-bot.git/internal/model/messages"
-	"github.com/jmoiron/sqlx"
-
-	"github.com/golang-migrate/migrate"
+	"github.com/darzox/broski-vpn/internal/clients/http_invoice"
+	"github.com/darzox/broski-vpn/internal/clients/outline"
+	"github.com/darzox/broski-vpn/internal/clients/tg"
+	"github.com/darzox/broski-vpn/internal/config"
+	"github.com/darzox/broski-vpn/internal/delivery"
+	"github.com/darzox/broski-vpn/internal/repository/data_access"
+	"github.com/darzox/broski-vpn/internal/usecase"
+	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/jmoiron/sqlx"
 )
 
 func main() {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+
 	config, err := config.New()
 	if err != nil {
-		log.Fatal("config init failed:", err)
+		logger.Error("config init failed:", err)
+		return
 	}
 
 	m, err := migrate.New(
-		"../../migrations",
+		"file://migrations",
 		fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
 			config.PostgresDBUserLogin(),
 			config.PostgresUserPass(),
 			config.PostgresHost(),
 			config.PostgresPort(),
-			config.PostgresSslMode(),
-			config.PostgresDBName()))
+			config.PostgresDBName(),
+			config.PostgresSslMode()))
 	if err != nil {
-		log.Fatal(err)
+		logger.Error("migration connection is failed:", "error", err)
+		return
 	}
-	if err := m.Up(); err != nil {
-		log.Fatal(err)
+	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		logger.Error("migration up is failed:", "error", err)
+		return
 	}
 
 	db, err := sqlx.Connect("postgres", fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
@@ -42,22 +52,34 @@ func main() {
 		config.PostgresUserPass(),
 		config.PostgresHost(),
 		config.PostgresPort(),
-		config.PostgresSslMode(),
-		config.PostgresDBName()))
+		config.PostgresDBName(),
+		config.PostgresSslMode()))
 	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println(db)
-
-	tgClient, err := tg.New(config)
-	if err != nil {
-		log.Fatal("telegram init failed:", err)
+		logger.Error("db connection is failed:", "error", err)
+		return
 	}
 
 	httpClient, err := http_invoice.NewTelegramHTTPClient(config)
+	if err != nil {
+		logger.Error("http client init failed:", "error", err)
+		return
+	}
 
-	model := model.New(tgClient, httpClient)
+	httpOutlineClient, err := outline.NewOutlineHttpClient(config)
+	if err != nil {
+		logger.Error("outline client init failed:", "error", err)
+		return
+	}
+	repo := data_access.NewDb(db)
 
-	tgClient.ListenUpdates(model)
+	usecase := usecase.New(logger, repo, httpClient, httpOutlineClient)
+
+	tgClient, err := tg.New(config)
+	if err != nil {
+		log.Fatal("telegram init failed:", "error", err)
+	}
+
+	delivery := delivery.New(logger, tgClient, usecase)
+
+	tgClient.ListenUpdates(delivery)
 }

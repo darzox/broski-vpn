@@ -17,6 +17,7 @@ type Config struct {
 	DbPort      int    `yaml:"postgresPort"`
 	DbName      string `yaml:"postgresDBName"`
 	DbSslMode   string `yaml:"postgresSslMode"`
+	VpnUrl      string `yaml:"vpnUrl"`
 }
 
 type Service struct {
@@ -41,6 +42,10 @@ func New() (*Service, error) {
 
 func (s *Service) Token() string {
 	return s.config.Token
+}
+
+func (s *Service) VpnUrl() string {
+	return s.config.VpnUrl
 }
 
 func (s *Service) PostgresDBName() string {

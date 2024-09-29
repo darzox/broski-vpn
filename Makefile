@@ -5,7 +5,7 @@ MOCKGEN=${BINDIR}/mockgen_${GOVER}
 SMARTIMPORTS=${BINDIR}/smartimports_${GOVER}
 LINTVER=latest
 LINTBIN=${BINDIR}/lint_${GOVER}_${LINTVER}
-PACKAGE=github.com/darzox/telegram-bot.git/cmd/bot
+PACKAGE=github.com/darzox/broski-vpn/cmd/bot
 
 
 all: format build test lint

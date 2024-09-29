@@ -3,7 +3,7 @@ package tg
 import (
 	"log"
 
-	"github.com/darzox/telegram-bot.git/internal/model/messages"
+	"github.com/darzox/broski-vpn/internal/delivery"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
 )
@@ -28,7 +28,9 @@ func New(tokenGetter TokenGetter) (*Client, error) {
 }
 
 func (c *Client) SendMessage(text string, userID int64) error {
-	_, err := c.client.Send(tgbotapi.NewMessage(userID, text))
+	msg := tgbotapi.NewMessage(userID, text)
+	msg.ParseMode = "MarkDown"
+	_, err := c.client.Send(msg)
 	if err != nil {
 		return errors.Wrap(err, "client.Send")
 	}
@@ -55,7 +57,7 @@ func (c *Client) SendAppGetLinks(userID int64) error {
 	return nil
 }
 
-func (c *Client) ListenUpdates(msgModel *messages.Model) {
+func (c *Client) ListenUpdates(router *delivery.Delivery) {
 	u := tgbotapi.NewUpdate(0)
 
 	u.Timeout = 60
@@ -68,11 +70,10 @@ func (c *Client) ListenUpdates(msgModel *messages.Model) {
 		if update.Message != nil {
 			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
-			err := msgModel.IncomingMessage(
-				messages.Message{
-					Text:   update.Message.Text,
-					UserID: update.Message.From.ID},
-			)
+			err := router.IncomingMessage(delivery.Message{
+				Text:   update.Message.Text,
+				UserID: int64(update.Message.From.ID),
+			})
 			if err != nil {
 				log.Println("error proccesing message:", err)
 			}

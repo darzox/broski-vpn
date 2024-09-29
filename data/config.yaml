@@ -1,7 +1,8 @@
 token: 6951561778:AAFCaUePuicyYqoiEgK_WNX2YPAVRH29IIc
-postgresUserLogin: postgres
+postgresUserLogin: broski
 postgresUserPass: password
 postgresHost: localhost
 postgresPort: 5432
-postgresDBName: postgres
+postgresDBName: broski
 postgresSslMode: disable
+vpnUrl: https://46.101.132.23:46969/S5jUfU6XyqpshZ3R-hno7g

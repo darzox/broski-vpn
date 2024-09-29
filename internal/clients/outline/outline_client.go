@@ -2,15 +2,17 @@ package outline
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 )
 
 type VpnUrlGetter interface {
-	Url() string
+	VpnUrl() string
 }
 
 type OutlineHttpClient struct {
@@ -21,9 +23,12 @@ type OutlineHttpClient struct {
 func NewOutlineHttpClient(vpnUrlGetter VpnUrlGetter) (*OutlineHttpClient, error) {
 	client := &http.Client{
 		Timeout: 5 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
 	}
 
-	url := vpnUrlGetter.Url()
+	url := vpnUrlGetter.VpnUrl()
 
 	return &OutlineHttpClient{
 		client: client,
@@ -53,7 +58,7 @@ func (c *OutlineHttpClient) CreateAccessKey() (string, int64, error) {
 		return "", 0, fmt.Errorf("failed to create access key: %v", err)
 	}
 
-	body, err := io.ReadAll(req.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", 0, fmt.Errorf("failed to read response body: %v", err)
 	}
@@ -64,7 +69,12 @@ func (c *OutlineHttpClient) CreateAccessKey() (string, int64, error) {
 		return "", 0, fmt.Errorf("failed to unmarshal body: %v", err)
 	}
 
-	return r.AccessUrl, r.Id, nil
+	keyId, err := strconv.ParseInt(r.Id, 10, 64)
+	if err != nil {
+		return "", 0, fmt.Errorf("failed to parse key id: %v", err)
+	}
+
+	return r.AccessUrl, keyId, nil
 }
 
 func (c *OutlineHttpClient) DeleteKey(keyId int64) error {
