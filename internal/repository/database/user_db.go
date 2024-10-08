@@ -27,3 +27,16 @@ func (r *UserDataDb) RegisterUserIfNotExists(ctx context.Context, telegramId int
 
 	return userId, err
 }
+
+func (r *UserDataDb) GetUserIdByChatId(ctx context.Context, telegramId int64) (int64, error) {
+	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
+	defer cancel()
+
+	var userId int64
+	err := r.db.GetContext(ctx, &userId, `SELECT id FROM users WHERE chat_id = $1`, telegramId)
+	if err != nil {
+		return 0, err
+	}
+
+	return userId, err
+}

@@ -38,6 +38,18 @@ func (c *Client) SendMessage(text string, userID int64) error {
 	return nil
 }
 
+func (c *Client) SendMessageWithKeyboard(text string, userID int64, keyboard tgbotapi.InlineKeyboardMarkup) error {
+	msg := tgbotapi.NewMessage(userID, text)
+	msg.ReplyMarkup = keyboard
+	msg.ParseMode = "MarkDown"
+	_, err := c.client.Send(msg)
+	if err != nil {
+		return errors.Wrap(err, "client.SendMessageWithKeyboard")
+	}
+
+	return nil
+}
+
 func (c *Client) SendAppGetLinks(userID int64) error {
 	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
@@ -68,7 +80,7 @@ func (c *Client) ListenUpdates(router *delivery.Delivery) {
 
 	for update := range updates {
 		if update.Message != nil {
-			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+			log.Printf("userId=%d %s", update.Message.From.ID, update.Message.Text)
 
 			err := router.IncomingMessage(delivery.Message{
 				Text:   update.Message.Text,
@@ -78,8 +90,62 @@ func (c *Client) ListenUpdates(router *delivery.Delivery) {
 				log.Println("error proccesing message:", err)
 			}
 		}
+
 		if update.PreCheckoutQuery != nil {
 			log.Printf("userId=%d tries to buy", update.PreCheckoutQuery.From.ID)
+			pca := tgbotapi.PreCheckoutConfig{
+				OK:                 true,
+				PreCheckoutQueryID: update.PreCheckoutQuery.ID,
+			}
+			_, err := c.client.Request(pca)
+			if err != nil {
+				log.Println("error proccesing precheckout:", err)
+			}
+		}
+
+		if update.Message != nil {
+			if update.Message.SuccessfulPayment != nil {
+				log.Printf("payment received from userId=%d", update.Message.From.ID)
+				err := router.IncomingMessage(delivery.Message{
+					Text:   "/create_key",
+					UserID: int64(update.Message.From.ID),
+				})
+				if err != nil {
+					log.Println("error proccesing message:", err)
+				}
+			}
+		}
+
+		if update.CallbackQuery != nil {
+			// Handle callback query
+			callback := update.CallbackQuery
+
+			switch callback.Data {
+			case "get_app":
+				err := router.IncomingMessage(delivery.Message{
+					Text:   "/get_app",
+					UserID: int64(callback.From.ID),
+				})
+				if err != nil {
+					log.Println("error proccesing message:", err)
+				}
+			case "payment":
+				err := router.IncomingMessage(delivery.Message{
+					Text:   "/buy_for_month",
+					UserID: int64(callback.From.ID),
+				})
+				if err != nil {
+					log.Println("error proccesing message:", err)
+				}
+			case "payment-for-friend":
+				err := router.IncomingMessage(delivery.Message{
+					Text:   "/buy_for_friend_for_month",
+					UserID: int64(callback.From.ID),
+				})
+				if err != nil {
+					log.Println("error proccesing message:", err)
+				}
+			}
 		}
 	}
 }

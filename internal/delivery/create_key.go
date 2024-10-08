@@ -1,7 +1,7 @@
 package delivery
 
-func (s *Delivery) start(msg Message) error {
-	messageString, inlineKeyboard, err := s.usecase.Start(msg.UserID)
+func (s *Delivery) createKey(msg Message) error {
+	messageString, inlineKeyboard, err := s.usecase.CreateKey(msg.UserID)
 	if err != nil {
 		s.logger.Error("cannot answer to start message:", err)
 		return nil

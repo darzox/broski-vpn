@@ -50,7 +50,7 @@ func (c *TelegramHTTPClient) SendInvoice(userId int64, amount int) error {
 		Prices: []price{
 			{
 				Label:  "50GB",
-				Amount: 150,
+				Amount: 1,
 			},
 		},
 		Currency: "XTR",

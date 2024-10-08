@@ -1,10 +1,14 @@
 package delivery
 
-import "log/slog"
+import (
+	"log/slog"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+)
 
 type MessageSender interface {
 	SendMessage(text string, userID int64) error
-	SendAppGetLinks(userID int64) error
+	SendMessageWithKeyboard(text string, userID int64, keyboard tgbotapi.InlineKeyboardMarkup) error
 }
 
 type InvoiceSender interface {
@@ -12,7 +16,11 @@ type InvoiceSender interface {
 }
 
 type Usecase interface {
-	Start(userId int64) (string, error)
+	Start(userId int64) (string, *tgbotapi.InlineKeyboardMarkup, error)
+	GetAccessKey(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error)
+	SendInvoiceForMonth(chatId int64) error
+	BuyForFriendForMonth(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error)
+	CreateKey(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error)
 }
 
 type Delivery struct {
@@ -42,13 +50,17 @@ func (s *Delivery) IncomingMessage(msg Message) error {
 	case msg.Text == "/terms":
 		return s.tgClient.SendMessage("terms", msg.UserID)
 	case msg.Text == "/get_app":
-		return s.tgClient.SendAppGetLinks(msg.UserID)
+		s.getApp(msg)
 	case msg.Text == "/get_key":
-		return s.tgClient.SendMessage("payment", msg.UserID)
+		s.getKey(msg)
 	case msg.Text == "/buy_for_month":
-		return s.httpClient.SendInvoice(msg.UserID, 150)
-	// case msg.Text == "/buy_for_year":
-	// 	return s.httpClient.SendInvoice(msg.UserID, 1000)
+		s.buyForMonth(msg)
+	case msg.Text == "/buy_for_friend_for_month":
+		s.buyForFriendForMonth(msg)
+	case msg.Text == "/create_key":
+		s.createKey(msg)
+	case msg.Text == "":
+		return nil
 	case msg.Text == "/support":
 		return s.tgClient.SendMessage("Мы напишем вам в лс", msg.UserID)
 	default:

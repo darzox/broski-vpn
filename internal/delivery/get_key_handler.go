@@ -1,8 +1,13 @@
 package delivery
 
-func (s *Delivery) start(msg Message) error {
-	messageString, inlineKeyboard, err := s.usecase.Start(msg.UserID)
-	if err != nil {
+import (
+	"database/sql"
+	"errors"
+)
+
+func (s *Delivery) getKey(msg Message) error {
+	messageString, inlineKeyboard, err := s.usecase.GetAccessKey(msg.UserID)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		s.logger.Error("cannot answer to start message:", err)
 		return nil
 	}
