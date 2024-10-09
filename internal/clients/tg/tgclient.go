@@ -107,8 +107,9 @@ func (c *Client) ListenUpdates(router *delivery.Delivery) {
 			if update.Message.SuccessfulPayment != nil {
 				log.Printf("payment received from userId=%d", update.Message.From.ID)
 				err := router.IncomingMessage(delivery.Message{
-					Text:   "/create_key",
-					UserID: int64(update.Message.From.ID),
+					Text:        "/create_key",
+					UserID:      int64(update.Message.From.ID),
+					PaymentInfo: update.Message.SuccessfulPayment,
 				})
 				if err != nil {
 					log.Println("error proccesing message:", err)

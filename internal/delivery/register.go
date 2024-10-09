@@ -20,7 +20,7 @@ type Usecase interface {
 	GetAccessKey(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error)
 	SendInvoiceForMonth(chatId int64) error
 	BuyForFriendForMonth(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error)
-	CreateKey(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error)
+	CreateKey(chatId int64, paymentInfo *tgbotapi.SuccessfulPayment) (string, *tgbotapi.InlineKeyboardMarkup, error)
 }
 
 type Delivery struct {
@@ -39,8 +39,9 @@ func New(logger *slog.Logger, tgClient MessageSender, usecase Usecase) *Delivery
 }
 
 type Message struct {
-	Text   string
-	UserID int64
+	Text        string
+	UserID      int64
+	PaymentInfo *tgbotapi.SuccessfulPayment
 }
 
 func (s *Delivery) IncomingMessage(msg Message) error {

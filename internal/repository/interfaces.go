@@ -13,7 +13,11 @@ type UserDataStorage interface {
 }
 
 type KeyDataStorage interface {
-	CreateUserKey(ctx context.Context, userId int64, keyId int64, accessKey string, expirationDate time.Time) error
+	CreateUserKey(ctx context.Context, userId int64, keyId int64, accessKey string, expirationDate time.Time) (int64, error)
 	GetAccessKeys(ctx context.Context, userId int64) ([]dto.AccessKey, error)
 	GetExpiredKeysOutlineIds(ctx context.Context) ([]int64, error)
+}
+
+type TransactionDataStorage interface {
+	CreatePaymentTransaction(ctx context.Context, userId int64, keyId int64, currency string, totalAmount int, invoicePayload string, telegramPaymentChargeID string, providerPaymentChargeID string) error
 }

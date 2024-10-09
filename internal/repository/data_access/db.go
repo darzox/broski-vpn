@@ -9,11 +9,13 @@ import (
 type DbContext struct {
 	repository.UserDataStorage
 	repository.KeyDataStorage
+	repository.TransactionDataStorage
 }
 
 func NewDb(db *sqlx.DB) *DbContext {
 	return &DbContext{
 		database.NewUserDataDb(db),
 		database.NewKeyDataDb(db),
+		database.NewTransactionDataDb(db),
 	}
 }

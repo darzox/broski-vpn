@@ -17,13 +17,15 @@ func NewKeyDataDb(db *sqlx.DB) *KeyDataDb {
 	return &KeyDataDb{db: db}
 }
 
-func (k *KeyDataDb) CreateUserKey(ctx context.Context, userId int64, keyId int64, accessKey string, expirationDate time.Time) error {
+func (k *KeyDataDb) CreateUserKey(ctx context.Context, userId int64, keyId int64, accessKey string, expirationDate time.Time) (int64, error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
-	_, err := k.db.ExecContext(ctx, `INSERT INTO users_keys (user_id, key_id, access_key, expiration_date) VALUES ($1, $2, $3, $4)`, userId, keyId, accessKey, expirationDate)
+	var userKeyId int64
 
-	return err
+	err := k.db.GetContext(ctx, &userKeyId, `INSERT INTO users_keys (user_id, key_id, access_key, expiration_date) VALUES ($1, $2, $3, $4) RETURNING id`, userId, keyId, accessKey, expirationDate)
+
+	return userKeyId, err
 }
 
 func (k *KeyDataDb) GetAccessKeys(ctx context.Context, userId int64) ([]dto.AccessKey, error) {

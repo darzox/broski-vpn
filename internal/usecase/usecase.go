@@ -17,6 +17,7 @@ import (
 type Repository interface {
 	repository.UserDataStorage
 	repository.KeyDataStorage
+	repository.TransactionDataStorage
 }
 
 type usecase struct {
@@ -52,7 +53,7 @@ func (u *usecase) Start(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, e
 
 	expirationDate := time.Now().Add(time.Hour * 24).UTC()
 
-	err = u.repo.CreateUserKey(context.Background(), id, keyId, accessKey, expirationDate)
+	_, err = u.repo.CreateUserKey(context.Background(), id, keyId, accessKey, expirationDate)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "CreateUserKey")
 	}
@@ -163,7 +164,7 @@ func (u *usecase) BuyForFriendForMonth(chatId int64) (string, *tgbotapi.InlineKe
 	return message, &inlineKeyboard, nil
 }
 
-func (u *usecase) CreateKey(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error) {
+func (u *usecase) CreateKey(chatId int64, paymentInfo *tgbotapi.SuccessfulPayment) (string, *tgbotapi.InlineKeyboardMarkup, error) {
 	id, err := u.GetUserIdByChatId(chatId)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "CreateKey.GetUserIdByChatId")
@@ -176,9 +177,14 @@ func (u *usecase) CreateKey(chatId int64) (string, *tgbotapi.InlineKeyboardMarku
 
 	expirationDate := time.Now().Add(time.Hour * 24 * 30).UTC()
 
-	err = u.repo.CreateUserKey(context.Background(), id, keyId, accessKey, expirationDate)
+	userKeyId, err := u.repo.CreateUserKey(context.Background(), id, keyId, accessKey, expirationDate)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "CreateKey.CreateUserKey")
+	}
+
+	err = u.repo.CreatePaymentTransaction(context.Background(), id, userKeyId, paymentInfo.Currency, paymentInfo.TotalAmount, paymentInfo.InvoicePayload, paymentInfo.TelegramPaymentChargeID, paymentInfo.ProviderPaymentChargeID)
+	if err != nil {
+		u.logger.Warn("failed to create transaction", err)
 	}
 
 	message := fmt.Sprintf("Ваш ключ к нашим серверам \n(нажмите на ключ чтобы скопировать его):\n\n`%s`\n\n👉 Период в 30 дней.\n", accessKey)
