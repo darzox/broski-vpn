@@ -181,7 +181,7 @@ func (u *usecase) CreateKey(chatId int64) (string, *tgbotapi.InlineKeyboardMarku
 		return "", nil, errors.Wrap(err, "CreateKey.CreateUserKey")
 	}
 
-	message := fmt.Sprintf("Ваш ключ к нашим серверам \n(нажмите на ключ чтобы скопировать его):\n\n***`%s`***\n\n👉 Период в 30 дней.\n", accessKey)
+	message := fmt.Sprintf("Ваш ключ к нашим серверам \n(нажмите на ключ чтобы скопировать его):\n\n`%s`\n\n👉 Период в 30 дней.\n", accessKey)
 
 	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
