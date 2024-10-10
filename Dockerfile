@@ -20,14 +20,12 @@ RUN go build -o /bot -v ./cmd/bot
 ##
 ## Deploy
 ##
-FROM debian:buster-slim
+FROM golang:1.22
 
 WORKDIR /
 
 COPY --from=build /bot /bot
 COPY --from=build /app/migrations /migrations
 EXPOSE 8085
-
-USER nonroot:nonroot
 
 ENTRYPOINT ["/bot"]
