@@ -1,10 +1,8 @@
 package config
 
 import (
+	"fmt"
 	"os"
-
-	"github.com/pkg/errors"
-	"gopkg.in/yaml.v3"
 )
 
 const configFile = "data/config.yaml"
@@ -28,17 +26,37 @@ type Service struct {
 func New() (*Service, error) {
 	s := &Service{}
 
-	rawYaml, err := os.ReadFile(configFile)
-	if err != nil {
-		return nil, errors.Wrap(err, "reading config file")
+	config := Config{
+		Token:           getEnv("TOKEN", ""),
+		DbUserLogin:     getEnv("DB_USER_LOGIN", "default_user"),
+		DbUserPass:      getEnv("DB_USER_PASS", "default_pass"),
+		DbHost:          getEnv("DB_HOST", "localhost"),
+		DbPort:          getEnvAsInt("DB_PORT", 5432),
+		DbName:          getEnv("DB_NAME", "default_db"),
+		DbSslMode:       getEnv("DB_SSL_MODE", "disable"),
+		VpnUrl:          getEnv("VPN_URL", "http://localhost"),
+		MonthPriceInXTR: getEnvAsInt("MONTH_PRICE_IN_XTR", 100),
 	}
-
-	err = yaml.Unmarshal(rawYaml, &s.config)
-	if err != nil {
-		return nil, errors.Wrap(err, "parsing yaml")
-	}
+	s.config = config
 
 	return s, nil
+}
+
+func getEnv(key, defaultValue string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return defaultValue
+}
+
+// Helper function to get an environment variable as an integer
+func getEnvAsInt(key string, defaultValue int) int {
+	if value, exists := os.LookupEnv(key); exists {
+		var intValue int
+		fmt.Sscanf(value, "%d", &intValue)
+		return intValue
+	}
+	return defaultValue
 }
 
 func (s *Service) Token() string {
