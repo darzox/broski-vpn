@@ -6,3 +6,4 @@ postgresPort: 5432
 postgresDBName: broski
 postgresSslMode: disable
 vpnUrl: https://46.101.132.23:46969/S5jUfU6XyqpshZ3R-hno7g
+monthPriceInXTR: 100

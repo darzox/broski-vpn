@@ -25,14 +25,16 @@ type usecase struct {
 	repo                 Repository
 	telegramInvoceClient *http_invoice.TelegramHTTPClient
 	outlineClient        *outline.OutlineHttpClient
+	monthPriceInXTR      int
 }
 
-func New(logger *slog.Logger, repo Repository, tgInvoiceClinet *http_invoice.TelegramHTTPClient, outlineClient *outline.OutlineHttpClient) *usecase {
+func New(logger *slog.Logger, repo Repository, tgInvoiceClinet *http_invoice.TelegramHTTPClient, outlineClient *outline.OutlineHttpClient, monthPriceInXTR int) *usecase {
 	return &usecase{
 		logger:               logger,
 		repo:                 repo,
 		telegramInvoceClient: tgInvoiceClinet,
 		outlineClient:        outlineClient,
+		monthPriceInXTR:      monthPriceInXTR,
 	}
 }
 
@@ -144,7 +146,7 @@ func (u *usecase) RemoveExpiredKeys(ctx context.Context) error {
 }
 
 func (u *usecase) SendInvoiceForMonth(chatId int64) error {
-	err := u.telegramInvoceClient.SendInvoice(chatId, 1)
+	err := u.telegramInvoceClient.SendInvoice(chatId, u.monthPriceInXTR)
 	if err != nil {
 		return errors.Wrap(err, "SendInvoiceForMonth.SendInvoice")
 	}

@@ -10,14 +10,15 @@ import (
 const configFile = "data/config.yaml"
 
 type Config struct {
-	Token       string `yaml:"token"`
-	DbUserLogin string `yaml:"postgresUserLogin"`
-	DbUserPass  string `yaml:"postgresUserPass"`
-	DbHost      string `yaml:"postgresHost"`
-	DbPort      int    `yaml:"postgresPort"`
-	DbName      string `yaml:"postgresDBName"`
-	DbSslMode   string `yaml:"postgresSslMode"`
-	VpnUrl      string `yaml:"vpnUrl"`
+	Token           string `yaml:"token"`
+	DbUserLogin     string `yaml:"postgresUserLogin"`
+	DbUserPass      string `yaml:"postgresUserPass"`
+	DbHost          string `yaml:"postgresHost"`
+	DbPort          int    `yaml:"postgresPort"`
+	DbName          string `yaml:"postgresDBName"`
+	DbSslMode       string `yaml:"postgresSslMode"`
+	VpnUrl          string `yaml:"vpnUrl"`
+	MonthPriceInXTR int    `yaml:"monthPriceInXTR"`
 }
 
 type Service struct {
@@ -70,4 +71,8 @@ func (s *Service) PostgresPort() int {
 
 func (s *Service) PostgresSslMode() string {
 	return s.config.DbSslMode
+}
+
+func (s *Service) MonthPriceInXTR() int {
+	return s.config.MonthPriceInXTR
 }
