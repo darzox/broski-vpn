@@ -20,7 +20,7 @@ RUN go build -o /bot -v ./cmd/bot
 ##
 ## Deploy
 ##
-FROM gcr.io/distroless/base-debian10
+FROM debian:buster-slim
 
 WORKDIR /
 
