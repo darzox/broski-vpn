@@ -26,15 +26,17 @@ type usecase struct {
 	telegramInvoceClient *http_invoice.TelegramHTTPClient
 	outlineClient        *outline.OutlineHttpClient
 	monthPriceInXTR      int
+	supportUsername      string
 }
 
-func New(logger *slog.Logger, repo Repository, tgInvoiceClinet *http_invoice.TelegramHTTPClient, outlineClient *outline.OutlineHttpClient, monthPriceInXTR int) *usecase {
+func New(logger *slog.Logger, repo Repository, tgInvoiceClinet *http_invoice.TelegramHTTPClient, outlineClient *outline.OutlineHttpClient, monthPriceInXTR int, supportUsername string) *usecase {
 	return &usecase{
 		logger:               logger,
 		repo:                 repo,
 		telegramInvoceClient: tgInvoiceClinet,
 		outlineClient:        outlineClient,
 		monthPriceInXTR:      monthPriceInXTR,
+		supportUsername:      supportUsername,
 	}
 }
 
@@ -195,6 +197,24 @@ func (u *usecase) CreateKey(chatId int64, paymentInfo *tgbotapi.SuccessfulPaymen
 		tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData("Скачать приложение", "get_app"),
 		),
+	)
+
+	return message, &inlineKeyboard, nil
+}
+
+func (u *usecase) Support(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error) {
+	id, err := u.GetUserIdByChatId(chatId)
+	if err != nil {
+		return "", nil, errors.Wrap(err, "Support.GetUserIdByChatId")
+	}
+
+	message := fmt.Sprintf("Перейдите в чат поддержки, укажите свой id: \n`%d`\n", id)
+
+	urlButton := tgbotapi.NewInlineKeyboardButtonURL("Contact Support", fmt.Sprintf("https://t.me/%s", u.supportUsername))
+
+	// Creating the inline keyboard with the URL button
+	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(urlButton),
 	)
 
 	return message, &inlineKeyboard, nil

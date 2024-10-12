@@ -54,7 +54,7 @@ func (s *Delivery) IncomingMessage(msg Message) error {
 		s.getApp(msg)
 	case msg.Text == "/get_key":
 		s.getKey(msg)
-	case msg.Text == "/buy_for_month":
+	case msg.Text == "/buy_for_month" || msg.Text == "/payment":
 		s.buyForMonth(msg)
 	case msg.Text == "/buy_for_friend_for_month":
 		s.buyForFriendForMonth(msg)

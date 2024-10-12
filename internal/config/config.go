@@ -17,6 +17,7 @@ type Config struct {
 	DbSslMode       string `yaml:"postgresSslMode"`
 	VpnUrl          string `yaml:"vpnUrl"`
 	MonthPriceInXTR int    `yaml:"monthPriceInXTR"`
+	SupportUserName string `yaml:"supportUserName"`
 }
 
 type Service struct {
@@ -36,6 +37,7 @@ func New() (*Service, error) {
 		DbSslMode:       getEnv("DB_SSL_MODE", "disable"),
 		VpnUrl:          getEnv("VPN_URL", "http://localhost"),
 		MonthPriceInXTR: getEnvAsInt("MONTH_PRICE_IN_XTR", 100),
+		SupportUserName: getEnv("SUPPORT_USER_NAME", "broski_support"),
 	}
 	s.config = config
 
