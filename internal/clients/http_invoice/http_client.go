@@ -49,8 +49,8 @@ func (c *TelegramHTTPClient) SendInvoice(userId int64, amount int) error {
 		ProviderData:   "{}",
 		Prices: []price{
 			{
-				Label:  "50GB",
-				Amount: 1,
+				Label:  "30 дней",
+				Amount: amount,
 			},
 		},
 		Currency: "XTR",
