@@ -29,6 +29,8 @@ func main() {
 		return
 	}
 
+	logger.Info("config is loaded : %v", config)
+
 	m, err := migrate.New(
 		"file://migrations",
 		fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
