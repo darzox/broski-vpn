@@ -60,7 +60,7 @@ func (u *usecase) Start(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, e
 		return "", nil, errors.Wrap(err, "CreateUserKey")
 	}
 
-	startMessage := fmt.Sprintf("Добро пожаловать!\n\n👉 Ваш ключ к нашим серверам \n(нажмите на ключ чтобы скопировать его):\n\n`%s`\n\n👉 Тестовый период 24 часа. \n👉 Подписка %d в месяц. \n👉 Для оплаты нажмите /payment\n\n👉 Скачайте приложение и вставьте скопированный ключ\n\n👇👇👇👇👇👇👇👇", accessKey, 100)
+	startMessage := fmt.Sprintf("Добро пожаловать!\n\n👉 Ваш ключ к нашим серверам \n(нажмите на ключ чтобы скопировать его):\n\n`%s`\n\n👉 Тестовый период 24 часа. \n👉 Подписка %d 🌟 в месяц. \n👉 Для оплаты нажмите /payment\n\n👉 Скачайте приложение и вставьте скопированный ключ\n\n👇👇👇👇👇👇👇👇", accessKey, 100)
 
 	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
