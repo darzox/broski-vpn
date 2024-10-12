@@ -29,7 +29,7 @@ func main() {
 		return
 	}
 
-	logger.Info("config is loaded : %v", config)
+	fmt.Println("config", config.PostgresDBUserLogin(), config.PostgresUserPass(), config.PostgresHost(), config.PostgresPort(), config.PostgresDBName(), config.PostgresSslMode())
 
 	m, err := migrate.New(
 		"file://migrations",
