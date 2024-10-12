@@ -96,3 +96,7 @@ func (s *Service) PostgresSslMode() string {
 func (s *Service) MonthPriceInXTR() int {
 	return s.config.MonthPriceInXTR
 }
+
+func (s *Service) SupportUserName() string {
+	return s.config.SupportUserName
+}
