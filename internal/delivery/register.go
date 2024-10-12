@@ -21,6 +21,7 @@ type Usecase interface {
 	SendInvoiceForMonth(chatId int64) error
 	BuyForFriendForMonth(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error)
 	CreateKey(chatId int64, paymentInfo *tgbotapi.SuccessfulPayment) (string, *tgbotapi.InlineKeyboardMarkup, error)
+	Support(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error)
 }
 
 type Delivery struct {
