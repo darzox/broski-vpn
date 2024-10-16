@@ -3,6 +3,8 @@ package job
 import (
 	"context"
 	"log/slog"
+
+	"github.com/robfig/cron/v3"
 )
 
 type Usecase interface {
@@ -19,6 +21,15 @@ func New(logger *slog.Logger, usecase Usecase) *cronjob {
 		usecase: usecase,
 		logger:  logger,
 	}
+}
+
+func (j *cronjob) Start(c *cron.Cron) {
+	go func() {
+		_, err := c.AddFunc("0 * * * *", j.RemoveExpiredKeys)
+		if err != nil {
+			j.logger.Error("failed to add cronjob", "error", err)
+		}
+	}()
 }
 
 func (j *cronjob) RemoveExpiredKeys() {
