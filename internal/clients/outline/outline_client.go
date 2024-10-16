@@ -78,7 +78,7 @@ func (c *OutlineHttpClient) CreateAccessKey() (string, int64, error) {
 }
 
 func (c *OutlineHttpClient) DeleteKey(keyId int64) error {
-	url := fmt.Sprintf("%s/%d", c.url, keyId)
+	url := fmt.Sprintf("%s/access-keys/%d", c.url, keyId)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
