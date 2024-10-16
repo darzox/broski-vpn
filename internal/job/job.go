@@ -36,7 +36,7 @@ func (j *cronjob) RemoveExpiredKeys() {
 	j.logger.Info("started check for expired keys to remove")
 	err := j.usecase.RemoveExpiredKeys(context.Background())
 	if err != nil {
-		j.logger.Error("failed to remove expired keys")
+		j.logger.Error("failed to remove expired keys", err)
 	}
 	j.logger.Info("finished check for expired keys to remove")
 }
