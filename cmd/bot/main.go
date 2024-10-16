@@ -12,15 +12,19 @@ import (
 	"github.com/darzox/broski-vpn/internal/clients/tg"
 	"github.com/darzox/broski-vpn/internal/config"
 	"github.com/darzox/broski-vpn/internal/delivery"
+	"github.com/darzox/broski-vpn/internal/job"
 	"github.com/darzox/broski-vpn/internal/repository/data_access"
 	"github.com/darzox/broski-vpn/internal/usecase"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jmoiron/sqlx"
+	"github.com/robfig/cron/v3"
 )
 
 func main() {
+	c := cron.New()
+
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
 	config, err := config.New()
@@ -82,6 +86,14 @@ func main() {
 	}
 
 	delivery := delivery.New(logger, tgClient, usecase)
+
+	jobs := job.New(logger, usecase)
+
+	jobs.Start(c)
+
+	go func() {
+		c.Start()
+	}()
 
 	tgClient.ListenUpdates(delivery)
 }
