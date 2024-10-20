@@ -101,6 +101,17 @@ func (u *usecase) GetAccessKey(chatId int64) (string, *tgbotapi.InlineKeyboardMa
 
 	var messageString string
 
+	if errors.Is(err, sql.ErrNoRows) {
+		messageString = "Подписка закончилась"
+		inlineKeyboard = tgbotapi.NewInlineKeyboardMarkup(
+			tgbotapi.NewInlineKeyboardRow(
+				tgbotapi.NewInlineKeyboardButtonData("Оплата", "payment"),
+			),
+		)
+
+		return messageString, &inlineKeyboard, err
+	}
+
 	locationTime, _ := time.LoadLocation("Europe/Moscow")
 
 	if len(accessKeys) == 1 {
@@ -117,15 +128,6 @@ func (u *usecase) GetAccessKey(chatId int64) (string, *tgbotapi.InlineKeyboardMa
 		}
 
 		return messageString, &inlineKeyboard, nil
-	}
-
-	if errors.Is(err, sql.ErrNoRows) {
-		messageString = "Подписка закончилась"
-		inlineKeyboard = tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData("Оплата", "payment"),
-			),
-		)
 	}
 
 	return messageString, &inlineKeyboard, err
