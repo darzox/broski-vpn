@@ -66,9 +66,9 @@ func (s *Delivery) IncomingMessage(msg Message) error {
 	case msg.Text == "/support":
 		s.support(msg)
 	case msg.Text == "/help":
-		s.support(msg)
+		s.help(msg)
 	default:
-		return s.tgClient.SendMessage("the command is unknown", msg.UserID)
+		s.help(msg)
 	}
 
 	return nil
