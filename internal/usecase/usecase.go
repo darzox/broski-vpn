@@ -186,6 +186,10 @@ func (u *usecase) CreateKey(chatId int64, paymentInfo *tgbotapi.SuccessfulPaymen
 		return "", nil, errors.Wrap(err, "CreateKey.CreateUserKey")
 	}
 
+	if paymentInfo == nil || paymentInfo.InvoicePayload == "" {
+		return "", nil, errors.Wrap(errors.New("paymentInfo is nil"), "CreateKey")
+	}
+
 	err = u.repo.CreatePaymentTransaction(context.Background(), id, userKeyId, paymentInfo.Currency, paymentInfo.TotalAmount, paymentInfo.InvoicePayload, paymentInfo.TelegramPaymentChargeID, paymentInfo.ProviderPaymentChargeID)
 	if err != nil {
 		u.logger.Warn("failed to create transaction", err)
