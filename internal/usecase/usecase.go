@@ -50,7 +50,7 @@ func (u *usecase) Start(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, e
 		message := `Вы уже зарегистрированы`
 		inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData("Скачать приложение", "get_app"),
+				tgbotapi.NewInlineKeyboardButtonData("Скачать приложение", "getapp"),
 			),
 		)
 		return message, &inlineKeyboard, nil
@@ -72,7 +72,7 @@ func (u *usecase) Start(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, e
 
 	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("Скачать приложение", "get_app"),
+			tgbotapi.NewInlineKeyboardButtonData("Скачать приложение", "getapp"),
 		),
 	)
 
@@ -101,7 +101,7 @@ func (u *usecase) GetAccessKey(chatId int64) (string, *tgbotapi.InlineKeyboardMa
 
 	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("Скачать приложение", "get_app"),
+			tgbotapi.NewInlineKeyboardButtonData("Скачать приложение", "getapp"),
 		),
 	)
 
@@ -207,7 +207,7 @@ func (u *usecase) CreateKey(chatId int64, paymentInfo *tgbotapi.SuccessfulPaymen
 
 	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("Скачать приложение", "get_app"),
+			tgbotapi.NewInlineKeyboardButtonData("Скачать приложение", "getapp"),
 		),
 	)
 
