@@ -47,7 +47,13 @@ func (u *usecase) Start(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, e
 	}
 
 	if id == 0 {
-		return "", nil, nil
+		message := `Вы уже зарегистрированы`
+		inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
+			tgbotapi.NewInlineKeyboardRow(
+				tgbotapi.NewInlineKeyboardButtonData("Скачать приложение", "get_app"),
+			),
+		)
+		return message, &inlineKeyboard, nil
 	}
 
 	accessKey, keyId, err := u.outlineClient.CreateAccessKey()

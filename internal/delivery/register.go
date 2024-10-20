@@ -67,6 +67,8 @@ func (s *Delivery) IncomingMessage(msg Message) error {
 		s.support(msg)
 	case msg.Text == "/help":
 		s.help(msg)
+	case msg.Text == "/instraction":
+		s.instraction(msg)
 	default:
 		s.help(msg)
 	}
