@@ -122,7 +122,7 @@ func (u *usecase) GetAccessKey(chatId int64) (string, *tgbotapi.InlineKeyboardMa
 
 	if len(accessKeys) == 1 {
 		expirationDate := accessKeys[0].ExpirationDate.In(locationTime).Format("2006-01-02 15:04:05")
-		messageString = fmt.Sprintf("Ваш ключ к нашим серверам \n(нажмите на ключ чтобы скопировать его):\n\n`%s`\n**Действителен до: %s(МСК)**", accessKeys[0].AccessKeyString, expirationDate)
+		messageString = fmt.Sprintf("Ваш ключ к нашим серверам \n(нажмите на ключ чтобы скопировать его):\n\n`%s`\n Действителен до: %s(МСК)", accessKeys[0].AccessKeyString, expirationDate)
 		return messageString, &inlineKeyboard, nil
 	}
 
@@ -130,7 +130,7 @@ func (u *usecase) GetAccessKey(chatId int64) (string, *tgbotapi.InlineKeyboardMa
 		messageString = "Ваши ключи к нашим серверам:\n\n"
 		for _, key := range accessKeys {
 			expirationDate := key.ExpirationDate.In(locationTime).Format("2006-01-02 15:04:05")
-			messageString += fmt.Sprintf("`%s`\n*(Действителен до: %s(МСК)**\n\n", key.AccessKeyString, expirationDate)
+			messageString += fmt.Sprintf("`%s`\n Действителен до: %s(МСК)\n\n", key.AccessKeyString, expirationDate)
 		}
 
 		return messageString, &inlineKeyboard, nil
