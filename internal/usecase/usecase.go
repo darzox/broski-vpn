@@ -255,9 +255,9 @@ func (u *usecase) Support(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup,
 func (u *usecase) Payment(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error) {
 	message := fmt.Sprintf(`Подписка на VPN
 
-    Месяц — %d 🌟. Получите доступ ко всем нашим VPN-серверам на 30 дней для безопасного и анонимного серфинга.
+    Месяц — %d звёзд 🌟. Получите доступ ко всем нашим VPN-серверам на 30 дней для безопасного и анонимного серфинга.
 
-    Год — всего %d 🌟! Сэкономьте 200 звёзд при оплате годовой подписки и пользуйтесь VPN весь год.`, u.monthPriceInXTR, u.yearPriceInXTR)
+    Год — всего %d звёзд 🌟! Сэкономьте 200 звёзд при оплате годовой подписки и пользуйтесь VPN весь год.`, u.monthPriceInXTR, u.yearPriceInXTR)
 
 	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
@@ -269,48 +269,20 @@ func (u *usecase) Payment(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup,
 	return message, &inlineKeyboard, nil
 }
 
-func (u *usecase) BuyForMonth(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error) {
-	_, _, err := u.GetAccessKey(chatId)
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return "", nil, errors.Wrap(err, "BuyForMonth.GetAccessKey")
-	}
-
-	if errors.Is(err, sql.ErrNoRows) {
-		err = u.SendInvoiceForMonth(chatId)
-		if err != nil {
-			return "", nil, errors.Wrap(err, "BuyForMonth.SendInvoiceForMonth")
-		}
-
-		return "", nil, nil
-	}
-
-	message, inlineKeyboard, err := u.BuyForFriend(chatId)
+func (u *usecase) BuyForMonth(chatId int64) error {
+	err := u.SendInvoiceForMonth(chatId)
 	if err != nil {
-		return "", nil, errors.Wrap(err, "BuyForMonth.BuyForFriend")
+		return nil
 	}
 
-	return message, inlineKeyboard, nil
+	return nil
 }
 
-func (u *usecase) BuyForYear(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error) {
-	_, _, err := u.GetAccessKey(chatId)
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return "", nil, errors.Wrap(err, "BuyForYear.GetAccessKey")
-	}
-
-	if errors.Is(err, sql.ErrNoRows) {
-		err = u.SendInvoiceForMonth(chatId)
-		if err != nil {
-			return "", nil, errors.Wrap(err, "BuyForYear.SendInvoiceForMonth")
-		}
-
-		return "", nil, nil
-	}
-
-	message, inlineKeyboard, err := u.BuyForFriend(chatId)
+func (u *usecase) BuyForYear(chatId int64) error {
+	err := u.SendInvoiceForMonth(chatId)
 	if err != nil {
-		return "", nil, errors.Wrap(err, "BuyForYear.BuyForFriend")
+		return nil
 	}
 
-	return message, inlineKeyboard, nil
+	return nil
 }

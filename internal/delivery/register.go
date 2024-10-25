@@ -23,7 +23,8 @@ type Usecase interface {
 	CreateKey(chatId int64, paymentInfo *tgbotapi.SuccessfulPayment) (string, *tgbotapi.InlineKeyboardMarkup, error)
 	Support(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error)
 	Payment(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error)
-	BuyForMonth(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error)
+	BuyForMonth(chatId int64) error
+	BuyForYear(chatId int64) error
 }
 
 type Delivery struct {
@@ -59,8 +60,8 @@ func (s *Delivery) IncomingMessage(msg Message) error {
 		s.getKey(msg)
 	case msg.Text == "/buyformonth":
 		s.buyForMonth(msg)
-	case msg.Text == "/buyforfriendformonth":
-		s.buyForFriendForMonth(msg)
+	case msg.Text == "/buyforyear":
+		s.buyForYear(msg)
 	case msg.Text == "/createkey":
 		s.createKey(msg)
 	case msg.Text == "":

@@ -14,3 +14,23 @@ func (s *Delivery) payment(msg Message) error {
 
 	return nil
 }
+
+func (s *Delivery) buyForMonth(msg Message) error {
+	err := s.usecase.BuyForMonth(msg.UserID)
+	if err != nil {
+		return err
+
+	}
+
+	return nil
+}
+
+func (s *Delivery) buyForYear(msg Message) error {
+	err := s.usecase.BuyForYear(msg.UserID)
+	if err != nil {
+		return err
+
+	}
+
+	return nil
+}
