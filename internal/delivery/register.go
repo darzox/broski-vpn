@@ -58,9 +58,9 @@ func (s *Delivery) IncomingMessage(msg Message) error {
 		s.getApp(msg)
 	case msg.Text == "/getkey":
 		s.getKey(msg)
-	case msg.Text == "/buyformonth":
+	case msg.Text == "/buysubformonth":
 		s.buyForMonth(msg)
-	case msg.Text == "/buyforyear":
+	case msg.Text == "/buysubforyear":
 		s.buyForYear(msg)
 	case msg.Text == "/createkey":
 		s.createKey(msg)

@@ -261,8 +261,8 @@ func (u *usecase) Payment(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup,
 
 	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("Купить на месяц", "buyformonth"),
-			tgbotapi.NewInlineKeyboardButtonData("Купить на год", "getapp"),
+			tgbotapi.NewInlineKeyboardButtonData("Купить на месяц", "buysubformonth"),
+			tgbotapi.NewInlineKeyboardButtonData("Купить на год", "buysubforyear"),
 		),
 	)
 
