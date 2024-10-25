@@ -257,9 +257,9 @@ func (u *usecase) Support(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup,
 func (u *usecase) Payment(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error) {
 	message := fmt.Sprintf(`Подписка на VPN
 
-    Месяц — %d звёзд 🌟. Получите доступ ко всем нашим VPN-серверам на 30 дней для безопасного и анонимного серфинга.
+    Месяц — %d звёзд 🌟! Получите доступ ко всем нашим VPN-серверам на 30 дней для безопасного и анонимного серфинга.
 
-    Год — всего %d звёзд 🌟! Сэкономьте 200 звёзд при оплате годовой подписки и пользуйтесь VPN весь год.`, u.monthPriceInXTR, u.yearPriceInXTR)
+    Год — всего %d звёзд 🌟! Сэкономьте %d звёзд при оплате годовой подписки и пользуйтесь VPN весь год.`, u.monthPriceInXTR, u.yearPriceInXTR, 12*u.monthPriceInXTR-u.yearPriceInXTR)
 
 	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
