@@ -279,7 +279,7 @@ func (u *usecase) BuyForMonth(chatId int64) error {
 }
 
 func (u *usecase) BuyForYear(chatId int64) error {
-	err := u.SendInvoiceForMonth(chatId)
+	err := u.SendInvoiceForYear(chatId)
 	if err != nil {
 		return nil
 	}
