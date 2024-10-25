@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/darzox/broski-vpn/internal/clients/http_invoice"
@@ -12,6 +13,11 @@ import (
 	"github.com/darzox/broski-vpn/internal/repository"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
+)
+
+const (
+	MonthlySubscriptionDays = 30
+	YearlySubscriptionDays  = 365
 )
 
 type Repository interface {
@@ -27,9 +33,10 @@ type usecase struct {
 	outlineClient        *outline.OutlineHttpClient
 	monthPriceInXTR      int
 	supportUsername      string
+	yearPriceInXTR       int
 }
 
-func New(logger *slog.Logger, repo Repository, tgInvoiceClinet *http_invoice.TelegramHTTPClient, outlineClient *outline.OutlineHttpClient, monthPriceInXTR int, supportUsername string) *usecase {
+func New(logger *slog.Logger, repo Repository, tgInvoiceClinet *http_invoice.TelegramHTTPClient, outlineClient *outline.OutlineHttpClient, monthPriceInXTR int, supportUsername string, yearPriceInXTR int) *usecase {
 	return &usecase{
 		logger:               logger,
 		repo:                 repo,
@@ -37,6 +44,7 @@ func New(logger *slog.Logger, repo Repository, tgInvoiceClinet *http_invoice.Tel
 		outlineClient:        outlineClient,
 		monthPriceInXTR:      monthPriceInXTR,
 		supportUsername:      supportUsername,
+		yearPriceInXTR:       yearPriceInXTR,
 	}
 }
 
@@ -68,7 +76,7 @@ func (u *usecase) Start(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, e
 		return "", nil, errors.Wrap(err, "CreateUserKey")
 	}
 
-	startMessage := fmt.Sprintf("Добро пожаловать!\n\n👉 Ваш ключ к нашим серверам \n(нажмите на ключ чтобы скопировать его):\n\n`%s`\n\n👉 Тестовый период 24 часа. \n👉 Подписка %d 🌟 в месяц. \n👉 Для оплаты нажмите /payment\n\n👉 Скачайте приложение и вставьте скопированный ключ\n\n👇👇👇👇👇👇👇👇", accessKey, 100)
+	startMessage := fmt.Sprintf("Добро пожаловать!\n\n👉 Ваш ключ к нашим серверам \n(нажмите на ключ чтобы скопировать его):\n\n`%s`\n\n👉 Тестовый период 24 часа. \n👉 Подписка %d 🌟 в месяц. \n👉 Для оплаты нажмите /payment\n\n👉 Скачайте приложение и вставьте скопированный ключ\n\n👇👇👇👇👇👇👇👇", accessKey, u.monthPriceInXTR)
 
 	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
@@ -156,7 +164,7 @@ func (u *usecase) RemoveExpiredKeys(ctx context.Context) error {
 }
 
 func (u *usecase) SendInvoiceForMonth(chatId int64) error {
-	err := u.telegramInvoceClient.SendInvoice(chatId, u.monthPriceInXTR)
+	err := u.telegramInvoceClient.SendInvoice(chatId, u.monthPriceInXTR, MonthlySubscriptionDays)
 	if err != nil {
 		return errors.Wrap(err, "SendInvoiceForMonth.SendInvoice")
 	}
@@ -164,12 +172,21 @@ func (u *usecase) SendInvoiceForMonth(chatId int64) error {
 	return nil
 }
 
-func (u *usecase) BuyForFriendForMonth(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error) {
+func (u *usecase) SendInvoiceForYear(chatId int64) error {
+	err := u.telegramInvoceClient.SendInvoice(chatId, u.yearPriceInXTR, YearlySubscriptionDays)
+	if err != nil {
+		return errors.Wrap(err, "SendInvoiceForYear.SendInvoice")
+	}
+
+	return nil
+}
+
+func (u *usecase) BuyForFriend(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error) {
 	message := "У вас уже есть ключ доступа\nВы можете купить еще один ключ доступа для друга"
 
 	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("Купить другу ключ", "payment-for-friend"),
+			tgbotapi.NewInlineKeyboardButtonData("Купить другу ключ", "payment"),
 		),
 	)
 
@@ -188,6 +205,9 @@ func (u *usecase) CreateKey(chatId int64, paymentInfo *tgbotapi.SuccessfulPaymen
 	}
 
 	expirationDate := time.Now().Add(time.Hour * 24 * 30).UTC()
+	if strings.Contains(paymentInfo.InvoicePayload, fmt.Sprint(u.yearPriceInXTR)) {
+		expirationDate = time.Now().Add(time.Hour * 24 * 365).UTC()
+	}
 
 	userKeyId, err := u.repo.CreateUserKey(context.Background(), id, keyId, accessKey, expirationDate)
 	if err != nil {
@@ -230,4 +250,67 @@ func (u *usecase) Support(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup,
 	)
 
 	return message, &inlineKeyboard, nil
+}
+
+func (u *usecase) Payment(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error) {
+	message := fmt.Sprintf(`Подписка на VPN
+
+    Месяц — %d 🌟. Получите доступ ко всем нашим VPN-серверам на 30 дней для безопасного и анонимного серфинга.
+
+    Год — всего %d 🌟! Сэкономьте 200 звёзд при оплате годовой подписки и пользуйтесь VPN весь год.`, u.monthPriceInXTR, u.yearPriceInXTR)
+
+	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData("Купить на месяц", "buyformonth"),
+			tgbotapi.NewInlineKeyboardButtonData("Купить на год", "getapp"),
+		),
+	)
+
+	return message, &inlineKeyboard, nil
+}
+
+func (u *usecase) BuyForMonth(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error) {
+	_, _, err := u.GetAccessKey(chatId)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return "", nil, errors.Wrap(err, "BuyForMonth.GetAccessKey")
+	}
+
+	if errors.Is(err, sql.ErrNoRows) {
+		err = u.SendInvoiceForMonth(chatId)
+		if err != nil {
+			return "", nil, errors.Wrap(err, "BuyForMonth.SendInvoiceForMonth")
+		}
+
+		return "", nil, nil
+	}
+
+	message, inlineKeyboard, err := u.BuyForFriend(chatId)
+	if err != nil {
+		return "", nil, errors.Wrap(err, "BuyForMonth.BuyForFriend")
+	}
+
+	return message, inlineKeyboard, nil
+}
+
+func (u *usecase) BuyForYear(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error) {
+	_, _, err := u.GetAccessKey(chatId)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return "", nil, errors.Wrap(err, "BuyForYear.GetAccessKey")
+	}
+
+	if errors.Is(err, sql.ErrNoRows) {
+		err = u.SendInvoiceForMonth(chatId)
+		if err != nil {
+			return "", nil, errors.Wrap(err, "BuyForYear.SendInvoiceForMonth")
+		}
+
+		return "", nil, nil
+	}
+
+	message, inlineKeyboard, err := u.BuyForFriend(chatId)
+	if err != nil {
+		return "", nil, errors.Wrap(err, "BuyForYear.BuyForFriend")
+	}
+
+	return message, inlineKeyboard, nil
 }

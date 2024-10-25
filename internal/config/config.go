@@ -18,6 +18,7 @@ type Config struct {
 	VpnUrl          string `yaml:"vpnUrl"`
 	MonthPriceInXTR int    `yaml:"monthPriceInXTR"`
 	SupportUserName string `yaml:"supportUserName"`
+	YearPriceInXTR  int    `yaml:"yearPriceInXTR"`
 }
 
 type Service struct {
@@ -38,6 +39,7 @@ func New() (*Service, error) {
 		VpnUrl:          getEnv("VPN_URL", "http://localhost"),
 		MonthPriceInXTR: getEnvAsInt("MONTH_PRICE_IN_XTR", 100),
 		SupportUserName: getEnv("SUPPORT_USER_NAME", "broski_support"),
+		YearPriceInXTR:  getEnvAsInt("YEAR_PRICE_IN_XTR", 1000),
 	}
 	s.config = config
 
@@ -99,4 +101,8 @@ func (s *Service) MonthPriceInXTR() int {
 
 func (s *Service) SupportUserName() string {
 	return s.config.SupportUserName
+}
+
+func (s *Service) YearPriceInXTR() int {
+	return s.config.YearPriceInXTR
 }

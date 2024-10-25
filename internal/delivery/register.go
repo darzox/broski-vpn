@@ -19,9 +19,11 @@ type Usecase interface {
 	Start(userId int64) (string, *tgbotapi.InlineKeyboardMarkup, error)
 	GetAccessKey(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error)
 	SendInvoiceForMonth(chatId int64) error
-	BuyForFriendForMonth(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error)
+	BuyForFriend(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error)
 	CreateKey(chatId int64, paymentInfo *tgbotapi.SuccessfulPayment) (string, *tgbotapi.InlineKeyboardMarkup, error)
 	Support(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error)
+	Payment(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error)
+	BuyForMonth(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, error)
 }
 
 type Delivery struct {
@@ -55,7 +57,7 @@ func (s *Delivery) IncomingMessage(msg Message) error {
 		s.getApp(msg)
 	case msg.Text == "/getkey":
 		s.getKey(msg)
-	case msg.Text == "/buyformonth" || msg.Text == "/payment":
+	case msg.Text == "/buyformonth":
 		s.buyForMonth(msg)
 	case msg.Text == "/buyforfriendformonth":
 		s.buyForFriendForMonth(msg)
@@ -69,6 +71,8 @@ func (s *Delivery) IncomingMessage(msg Message) error {
 		s.help(msg)
 	case msg.Text == "/instraction":
 		s.instraction(msg)
+	case msg.Text == "/payment":
+		s.payment(msg)
 	default:
 		s.help(msg)
 	}

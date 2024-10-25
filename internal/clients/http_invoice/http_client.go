@@ -38,18 +38,18 @@ func NewTelegramHTTPClient(tokenGetter TokenGetter) (*TelegramHTTPClient, error)
 	}, nil
 }
 
-func (c *TelegramHTTPClient) SendInvoice(userId int64, amount int) error {
+func (c *TelegramHTTPClient) SendInvoice(userId int64, amount int, dayAmount int) error {
 	body := invoice{
 		ChatID:         userId,
-		Title:          "Ключ на 30 дней",
-		Description:    "Ключ на 30 дней для доступа к VPN",
-		Payload:        fmt.Sprintf(`{chat_id: %d, amount: %d}`, userId, amount),
+		Title:          fmt.Sprintf("Ключ на %d дней", dayAmount),
+		Description:    fmt.Sprintf("Ключ на %d дней для доступа к VPN", dayAmount),
+		Payload:        fmt.Sprintf(`{chat_id: %d, amount: %d, period: %d}`, userId, amount, dayAmount),
 		ProviderToken:  "",
 		StartParameter: "",
 		ProviderData:   "{}",
 		Prices: []price{
 			{
-				Label:  "30 дней",
+				Label:  fmt.Sprintf("%d дней", dayAmount),
 				Amount: amount,
 			},
 		},
