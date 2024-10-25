@@ -107,7 +107,7 @@ func (c *Client) ListenUpdates(router *delivery.Delivery) {
 			if update.Message.SuccessfulPayment != nil {
 				log.Printf("payment received from userId=%d", update.Message.From.ID)
 				err := router.IncomingMessage(delivery.Message{
-					Text:        "/create_key",
+					Text:        "/createkey",
 					UserID:      int64(update.Message.From.ID),
 					PaymentInfo: update.Message.SuccessfulPayment,
 				})
@@ -122,9 +122,9 @@ func (c *Client) ListenUpdates(router *delivery.Delivery) {
 			callback := update.CallbackQuery
 
 			switch callback.Data {
-			case "get_app":
+			case "getapp":
 				err := router.IncomingMessage(delivery.Message{
-					Text:   "/get_app",
+					Text:   "/getapp",
 					UserID: int64(callback.From.ID),
 				})
 				if err != nil {
@@ -132,7 +132,7 @@ func (c *Client) ListenUpdates(router *delivery.Delivery) {
 				}
 			case "payment":
 				err := router.IncomingMessage(delivery.Message{
-					Text:   "/buy_for_month",
+					Text:   "/buyformonth",
 					UserID: int64(callback.From.ID),
 				})
 				if err != nil {
@@ -140,7 +140,7 @@ func (c *Client) ListenUpdates(router *delivery.Delivery) {
 				}
 			case "payment-for-friend":
 				err := router.IncomingMessage(delivery.Message{
-					Text:   "/buy_for_friend_for_month",
+					Text:   "/buyforfriendformonth",
 					UserID: int64(callback.From.ID),
 				})
 				if err != nil {

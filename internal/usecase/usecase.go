@@ -47,7 +47,13 @@ func (u *usecase) Start(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, e
 	}
 
 	if id == 0 {
-		return "", nil, nil
+		message := `Вы уже зарегистрированы`
+		inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
+			tgbotapi.NewInlineKeyboardRow(
+				tgbotapi.NewInlineKeyboardButtonData("Скачать приложение", "getapp"),
+			),
+		)
+		return message, &inlineKeyboard, nil
 	}
 
 	accessKey, keyId, err := u.outlineClient.CreateAccessKey()
@@ -66,7 +72,7 @@ func (u *usecase) Start(chatId int64) (string, *tgbotapi.InlineKeyboardMarkup, e
 
 	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("Скачать приложение", "get_app"),
+			tgbotapi.NewInlineKeyboardButtonData("Скачать приложение", "getapp"),
 		),
 	)
 
@@ -95,11 +101,22 @@ func (u *usecase) GetAccessKey(chatId int64) (string, *tgbotapi.InlineKeyboardMa
 
 	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("Скачать приложение", "get_app"),
+			tgbotapi.NewInlineKeyboardButtonData("Скачать приложение", "getapp"),
 		),
 	)
 
 	var messageString string
+
+	if errors.Is(err, sql.ErrNoRows) {
+		messageString = "Подписка закончилась"
+		inlineKeyboard = tgbotapi.NewInlineKeyboardMarkup(
+			tgbotapi.NewInlineKeyboardRow(
+				tgbotapi.NewInlineKeyboardButtonData("Оплата", "payment"),
+			),
+		)
+
+		return messageString, &inlineKeyboard, err
+	}
 
 	locationTime, _ := time.LoadLocation("Europe/Moscow")
 
@@ -117,15 +134,6 @@ func (u *usecase) GetAccessKey(chatId int64) (string, *tgbotapi.InlineKeyboardMa
 		}
 
 		return messageString, &inlineKeyboard, nil
-	}
-
-	if errors.Is(err, sql.ErrNoRows) {
-		messageString = "Подписка закончилась"
-		inlineKeyboard = tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData("Оплата", "payment"),
-			),
-		)
 	}
 
 	return messageString, &inlineKeyboard, err
@@ -186,6 +194,10 @@ func (u *usecase) CreateKey(chatId int64, paymentInfo *tgbotapi.SuccessfulPaymen
 		return "", nil, errors.Wrap(err, "CreateKey.CreateUserKey")
 	}
 
+	if paymentInfo == nil || paymentInfo.InvoicePayload == "" {
+		return "", nil, errors.Wrap(errors.New("paymentInfo is nil"), "CreateKey")
+	}
+
 	err = u.repo.CreatePaymentTransaction(context.Background(), id, userKeyId, paymentInfo.Currency, paymentInfo.TotalAmount, paymentInfo.InvoicePayload, paymentInfo.TelegramPaymentChargeID, paymentInfo.ProviderPaymentChargeID)
 	if err != nil {
 		u.logger.Warn("failed to create transaction", err)
@@ -195,7 +207,7 @@ func (u *usecase) CreateKey(chatId int64, paymentInfo *tgbotapi.SuccessfulPaymen
 
 	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("Скачать приложение", "get_app"),
+			tgbotapi.NewInlineKeyboardButtonData("Скачать приложение", "getapp"),
 		),
 	)
 

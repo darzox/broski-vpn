@@ -51,22 +51,26 @@ func (s *Delivery) IncomingMessage(msg Message) error {
 		s.start(msg)
 	case msg.Text == "/terms":
 		return s.tgClient.SendMessage("terms", msg.UserID)
-	case msg.Text == "/get_app":
+	case msg.Text == "/getapp":
 		s.getApp(msg)
-	case msg.Text == "/get_key":
+	case msg.Text == "/getkey":
 		s.getKey(msg)
-	case msg.Text == "/buy_for_month" || msg.Text == "/payment":
+	case msg.Text == "/buyformonth" || msg.Text == "/payment":
 		s.buyForMonth(msg)
-	case msg.Text == "/buy_for_friend_for_month":
+	case msg.Text == "/buyforfriendformonth":
 		s.buyForFriendForMonth(msg)
-	case msg.Text == "/create_key":
+	case msg.Text == "/createkey":
 		s.createKey(msg)
 	case msg.Text == "":
 		return nil
 	case msg.Text == "/support":
 		s.support(msg)
+	case msg.Text == "/help":
+		s.help(msg)
+	case msg.Text == "/instraction":
+		s.instraction(msg)
 	default:
-		return s.tgClient.SendMessage("the command is unknown", msg.UserID)
+		s.help(msg)
 	}
 
 	return nil
