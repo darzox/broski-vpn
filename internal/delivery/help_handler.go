@@ -5,7 +5,7 @@ func (s *Delivery) help(msg Message) error {
 /instraction - Инструкция по использованию бота
 /getapp - Получить ссылку на приложение
 /getkey - Получить доступные ключи
-/buyformonth - Купить доступ на месяц
+/payment - Купить доступ к VPN серверам
 /support - Связаться с поддержкой
 `
 

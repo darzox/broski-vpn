@@ -78,7 +78,7 @@ func main() {
 	}
 	repo := data_access.NewDb(db)
 
-	usecase := usecase.New(logger, repo, httpClient, httpOutlineClient, config.MonthPriceInXTR(), config.SupportUserName())
+	usecase := usecase.New(logger, repo, httpClient, httpOutlineClient, config.MonthPriceInXTR(), config.SupportUserName(), config.YearPriceInXTR())
 
 	tgClient, err := tg.New(config)
 	if err != nil {

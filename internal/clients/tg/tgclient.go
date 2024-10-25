@@ -130,17 +130,17 @@ func (c *Client) ListenUpdates(router *delivery.Delivery) {
 				if err != nil {
 					log.Println("error proccesing message:", err)
 				}
-			case "payment":
+			case "buysubformonth":
 				err := router.IncomingMessage(delivery.Message{
-					Text:   "/buyformonth",
+					Text:   "/buysubformonth",
 					UserID: int64(callback.From.ID),
 				})
 				if err != nil {
 					log.Println("error proccesing message:", err)
 				}
-			case "payment-for-friend":
+			case "buysubforyear":
 				err := router.IncomingMessage(delivery.Message{
-					Text:   "/buyforfriendformonth",
+					Text:   "/buysubforyear",
 					UserID: int64(callback.From.ID),
 				})
 				if err != nil {
