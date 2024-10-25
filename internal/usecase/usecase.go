@@ -205,8 +205,10 @@ func (u *usecase) CreateKey(chatId int64, paymentInfo *tgbotapi.SuccessfulPaymen
 	}
 
 	expirationDate := time.Now().Add(time.Hour * 24 * 30).UTC()
+	dayPeriod := MonthlySubscriptionDays
 	if strings.Contains(paymentInfo.InvoicePayload, fmt.Sprint(u.yearPriceInXTR)) {
 		expirationDate = time.Now().Add(time.Hour * 24 * 365).UTC()
+		dayPeriod = YearlySubscriptionDays
 	}
 
 	userKeyId, err := u.repo.CreateUserKey(context.Background(), id, keyId, accessKey, expirationDate)
@@ -223,7 +225,7 @@ func (u *usecase) CreateKey(chatId int64, paymentInfo *tgbotapi.SuccessfulPaymen
 		u.logger.Warn("failed to create transaction", err)
 	}
 
-	message := fmt.Sprintf("Ваш ключ к нашим серверам \n(нажмите на ключ чтобы скопировать его):\n\n`%s`\n\n👉 Период в 30 дней.\n", accessKey)
+	message := fmt.Sprintf("Ваш ключ к нашим серверам \n(нажмите на ключ чтобы скопировать его):\n\n`%s`\n\n👉 Период в %d дней.\n", accessKey, dayPeriod)
 
 	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
