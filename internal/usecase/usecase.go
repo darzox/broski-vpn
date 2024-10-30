@@ -148,15 +148,19 @@ func (u *usecase) GetAccessKey(chatId int64) (string, *tgbotapi.InlineKeyboardMa
 }
 
 func (u *usecase) RemoveExpiredKeys(ctx context.Context) error {
-	outlineKeyIds, err := u.repo.GetExpiredKeysOutlineIds(ctx)
+	outlineKeyIds, err := u.repo.GetExpiredKeysWithChatIds(ctx)
 	if err != nil {
-		return errors.Wrap(err, "RemoveExpiredKeys.GetExpiredKeysOutlineIds")
+		return errors.Wrap(err, "RemoveExpiredKeys.GetExpiredKeysWithChatIds")
 	}
 
-	for _, keyId := range outlineKeyIds {
-		err := u.outlineClient.DeleteKey(keyId)
+	for _, item := range outlineKeyIds {
+		err := u.outlineClient.DeleteKey(item.KeyId)
 		if err != nil {
 			return errors.Wrap(err, "RemoveExpiredKeys.DeleteKey")
+		}
+		err = u.SendInvoiceForMonth(item.ChatId)
+		if err != nil {
+			return errors.Wrap(err, "RemoveExpiredKeys.SendInvoiceForMonth")
 		}
 	}
 

@@ -57,3 +57,18 @@ func (k *KeyDataDb) GetExpiredKeysOutlineIds(ctx context.Context) ([]int64, erro
 
 	return ids, err
 }
+
+func (k *KeyDataDb) GetExpiredKeysWithChatIds(ctx context.Context) ([]dto.ExpiredKeyWithChatId, error) {
+	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
+	defer cancel()
+
+	var expiredKeys []dto.ExpiredKeyWithChatId
+	err := k.db.SelectContext(ctx, &expiredKeys, `SELECT 
+	uk.key_id as key_id, u.chat_id as chat_id 
+	FROM users_keys uk left join users u ON uk.user_id = u.id WHERE uk.expiration_date < now()`)
+	if err != nil {
+		return nil, err
+	}
+
+	return expiredKeys, err
+}

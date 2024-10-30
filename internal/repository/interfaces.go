@@ -16,6 +16,7 @@ type KeyDataStorage interface {
 	CreateUserKey(ctx context.Context, userId int64, keyId int64, accessKey string, expirationDate time.Time) (int64, error)
 	GetAccessKeys(ctx context.Context, userId int64) ([]dto.AccessKey, error)
 	GetExpiredKeysOutlineIds(ctx context.Context) ([]int64, error)
+	GetExpiredKeysWithChatIds(ctx context.Context) ([]dto.ExpiredKeyWithChatId, error)
 }
 
 type TransactionDataStorage interface {
