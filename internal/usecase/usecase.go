@@ -158,10 +158,6 @@ func (u *usecase) RemoveExpiredKeys(ctx context.Context) error {
 		if err != nil {
 			u.logger.Error("RemoveExpiredKeys.DeleteKey : %v", err)
 		}
-		err = u.SendInvoiceForMonth(item.ChatId)
-		if err != nil {
-			u.logger.Error("RemoveExpiredKeys.SendInvoiceForMonth: %v", err)
-		}
 	}
 
 	return nil
