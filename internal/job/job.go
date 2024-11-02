@@ -25,7 +25,7 @@ func New(logger *slog.Logger, usecase Usecase) *cronjob {
 
 func (j *cronjob) Start(c *cron.Cron) {
 	go func() {
-		_, err := c.AddFunc("*/5 * * * *", j.RemoveExpiredKeys)
+		_, err := c.AddFunc("0 * * * *", j.RemoveExpiredKeys) // every hour
 		if err != nil {
 			j.logger.Error("failed to add cronjob", "error", err)
 		}
