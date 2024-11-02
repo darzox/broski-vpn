@@ -65,7 +65,7 @@ func (k *KeyDataDb) GetExpiredKeysWithChatIds(ctx context.Context) ([]dto.Expire
 	var expiredKeys []dto.ExpiredKeyWithChatId
 	err := k.db.SelectContext(ctx, &expiredKeys, `SELECT 
 	uk.key_id as key_id, u.chat_id as chat_id 
-	FROM users_keys uk left join users u ON uk.user_id = u.id WHERE uk.expiration_date < now()`)
+	FROM users_keys uk left join users u ON uk.user_id = u.id WHERE uk.expiration_date BETWEEN NOW() - INTERVAL '12 HOURS' AND NOW()`)
 	if err != nil {
 		return nil, err
 	}
