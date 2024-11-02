@@ -156,11 +156,11 @@ func (u *usecase) RemoveExpiredKeys(ctx context.Context) error {
 	for _, item := range outlineKeyIds {
 		err := u.outlineClient.DeleteKey(item.KeyId)
 		if err != nil {
-			return errors.Wrap(err, "RemoveExpiredKeys.DeleteKey")
+			u.logger.Error("RemoveExpiredKeys.DeleteKey : %v", err)
 		}
 		err = u.SendInvoiceForMonth(item.ChatId)
 		if err != nil {
-			return errors.Wrap(err, "RemoveExpiredKeys.SendInvoiceForMonth")
+			u.logger.Error("RemoveExpiredKeys.SendInvoiceForMonth: %v", err)
 		}
 	}
 

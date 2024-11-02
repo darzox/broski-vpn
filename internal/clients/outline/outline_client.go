@@ -97,7 +97,7 @@ func (c *OutlineHttpClient) DeleteKey(keyId int64) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusNoContent {
-		return fmt.Errorf("failed to delete access key: status code %v, body: %v", resp.StatusCode)
+		return fmt.Errorf("failed to delete access key: status code %v", resp.StatusCode)
 	}
 
 	return nil
