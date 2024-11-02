@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/darzox/broski-vpn/internal/dto"
@@ -69,6 +70,8 @@ func (k *KeyDataDb) GetExpiredKeysWithChatIds(ctx context.Context) ([]dto.Expire
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Printf("Expired keys: %v", expiredKeys)
 
 	return expiredKeys, err
 }
